@@ -7,7 +7,7 @@ interface AppContextType {
   tasks: Task[];
   users: User[];
   loading: boolean;
-  addTask: (taskData: Partial<Task>) => Promise<{ success: boolean; error?: string }>;
+  addTask: (taskData: Partial<Task>) => Promise<{ success: boolean; error?: string; emailStatus?: string }>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<boolean>;
   deleteTask: (id: string) => Promise<boolean>;
   updateUser: (id: string, updates: Partial<User>) => Promise<boolean>;
@@ -150,17 +150,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     
     // Trigger Notifications (Safe Call)
+    let emailStatus = 'Not sent';
     if (taskData.assignedTo) {
       const assignedUser = users.find(u => u.id === taskData.assignedTo);
       if (assignedUser) {
-        supabase.functions.invoke('send-task-notification', {
-          body: { user: assignedUser, task: { title: taskData.title, dueDate: taskData.dueDate } }
-        }).catch(err => console.error('Notification failed:', err));
+        try {
+          const { error: funcError } = await supabase.functions.invoke('send-task-notification', {
+            body: { user: assignedUser, task: { title: taskData.title, dueDate: taskData.dueDate } }
+          });
+          if (funcError) throw funcError;
+          emailStatus = 'Sent successfully';
+        } catch (err: any) {
+          console.error('Notification failed:', err);
+          emailStatus = `Failed to send: ${err.message}`;
+        }
       }
     }
 
     await fetchData(); // Refresh list
-    return { success: true };
+    return { success: true, emailStatus };
   };
 
   const updateTask = async (id: string, updates: any) => {
