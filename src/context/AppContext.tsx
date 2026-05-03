@@ -155,7 +155,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const assignedUser = users.find(u => u.id === taskData.assignedTo);
       if (assignedUser) {
         try {
-          const { error: funcError } = await supabase.functions.invoke('send-task-notification', {
+          const { error: funcError } = await supabase.functions.invoke('smooth-worker', {
             body: { user: assignedUser, task: { title: taskData.title, dueDate: taskData.dueDate } }
           });
           if (funcError) throw funcError;
