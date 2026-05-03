@@ -7,6 +7,7 @@ export type User = {
   role: Role;
   avatar?: string;
   department?: string;
+  phone?: string;
 };
 
 export type TaskStatus = 'todo' | 'in-progress' | 'review' | 'done';

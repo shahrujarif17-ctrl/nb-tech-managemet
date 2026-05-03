@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User as UserIcon, Mail, Briefcase, Shield, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, User as UserIcon, Mail, Briefcase, Shield, Image as ImageIcon, Phone, Loader2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import type { Role } from '../types';
 
@@ -16,6 +16,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
     email: '',
     role: 'employee' as Role,
     department: '',
+    phone: '',
     avatar: ''
   });
 
@@ -29,7 +30,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
     
     if (success) {
       onClose();
-      setFormData({ name: '', email: '', role: 'employee', department: '', avatar: '' });
+      setFormData({ name: '', email: '', role: 'employee', department: '', phone: '', avatar: '' });
     }
     setIsLoading(false);
   };
@@ -94,6 +95,21 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
                 </div>
               </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Phone Number</label>
+                <div className="relative group">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] group-focus-within:text-[#2563EB] transition-colors" />
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+1234567890"
+                    className="w-full pl-12 pr-4 py-3 bg-[#030B1A] border border-[#1E2F46] rounded-xl text-[#F8FAFC] placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#2563EB] transition-all"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Department</label>
                 <div className="relative group">
@@ -107,6 +123,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
                   />
                 </div>
               </div>
+            </div>
             </div>
 
             <div className="space-y-2">

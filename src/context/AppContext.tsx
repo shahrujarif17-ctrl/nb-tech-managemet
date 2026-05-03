@@ -150,6 +150,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       console.error('Error adding task:', error);
       return false;
     }
+    
+    // Trigger Notifications
+    if (taskData.assignedTo) {
+      const assignedUser = users.find(u => u.id === taskData.assignedTo);
+      if (assignedUser) {
+        console.log(`[Notification] Calling Edge Function for ${assignedUser.email}`);
+        
+        // This calls the Supabase Edge Function we just set up
+        supabase.functions.invoke('send-task-notification', {
+          body: { 
+            user: assignedUser, 
+            task: {
+              title: taskData.title,
+              dueDate: taskData.dueDate
+            } 
+          }
+        }).catch(err => console.error('Notification failed:', err));
+      }
+    }
+
     await fetchData(); // Refresh list
     return true;
   };
@@ -222,6 +242,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         email: employeeData.email,
         role: employeeData.role,
         department: employeeData.department,
+        phone: employeeData.phone,
         avatar: employeeData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(employeeData.name)}&background=random`
       }]);
 
