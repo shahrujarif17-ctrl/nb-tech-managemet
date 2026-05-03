@@ -11,6 +11,7 @@ interface EmployeeModalProps {
 export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose }) => {
   const { addEmployee } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -25,14 +26,21 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    const success = await addEmployee(formData);
-    
-    if (success) {
-      onClose();
-      setFormData({ name: '', email: '', role: 'employee', department: '', phone: '', avatar: '' });
+    try {
+      const success = await addEmployee(formData);
+      if (success) {
+        onClose();
+        setFormData({ name: '', email: '', role: 'employee', department: '', phone: '', avatar: '' });
+      } else {
+        setError('Failed to register employee. Please check your database permissions.');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -48,7 +56,13 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          <div className="grid grid-cols-1 gap-6">
+          {error && (
+            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-bold text-center">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-5">
             <div className="space-y-2">
               <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Full Name</label>
               <div className="relative group">
@@ -79,7 +93,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Role</label>
                 <div className="relative">
@@ -87,7 +101,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
                   <select
                     value={formData.role}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
-                    className="w-full pl-12 pr-4 py-3 bg-[#030B1A] border border-[#1E2F46] rounded-xl text-[#F8FAFC] focus:outline-none focus:ring-1 focus:ring-[#2563EB] transition-all appearance-none"
+                    className="w-full pl-12 pr-4 py-3 bg-[#030B1A] border border-[#1E2F46] rounded-xl text-[#F8FAFC] focus:outline-none focus:ring-1 focus:ring-[#2563EB] transition-all appearance-none cursor-pointer"
                   >
                     <option value="employee">Employee</option>
                     <option value="admin">Admin</option>
@@ -95,7 +109,6 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
                 </div>
               </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Phone Number</label>
                 <div className="relative group">
@@ -109,21 +122,20 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
                   />
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Department</label>
-                <div className="relative group">
-                  <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] group-focus-within:text-[#2563EB] transition-colors" />
-                  <input
-                    type="text"
-                    value={formData.department}
-                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                    placeholder="Engineering"
-                    className="w-full pl-12 pr-4 py-3 bg-[#030B1A] border border-[#1E2F46] rounded-xl text-[#F8FAFC] placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#2563EB] transition-all"
-                  />
-                </div>
-              </div>
             </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Department</label>
+              <div className="relative group">
+                <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] group-focus-within:text-[#2563EB] transition-colors" />
+                <input
+                  type="text"
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  placeholder="Engineering"
+                  className="w-full pl-12 pr-4 py-3 bg-[#030B1A] border border-[#1E2F46] rounded-xl text-[#F8FAFC] placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#2563EB] transition-all"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
