@@ -238,6 +238,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const { error } = await supabase
       .from('profiles')
       .insert([{
+        id: crypto.randomUUID(), // Generate a unique ID for the profile
         name: employeeData.name,
         email: employeeData.email,
         role: employeeData.role,
