@@ -238,7 +238,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     if (error) {
       console.error('Error adding employee:', error);
-      return { success: false, error: error.message };
+      let friendlyError = error.message;
+      if (error.message.includes('unique constraint') && error.message.includes('email')) {
+        friendlyError = 'An employee with this email already exists in your directory.';
+      }
+      return { success: false, error: friendlyError };
     }
     await fetchData();
     return { success: true };
