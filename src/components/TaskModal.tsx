@@ -59,9 +59,6 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, task }) =
           startDate: new Date().toISOString(),
         } as any);
         if (!result.success) throw new Error(result.error || 'Failed to create task');
-        
-        // Final Status Alert
-        alert(`Task Created!\nEmail Notification: ${result.emailStatus}`);
       }
       onClose();
     } catch (err: any) {

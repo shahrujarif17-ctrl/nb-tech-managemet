@@ -144,31 +144,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         created_by: currentUser?.id
       }]);
     
-    if (error) {
-      console.error('Error adding task:', error);
-      return { success: false, error: error.message };
-    }
-    
-    // Trigger Notifications (Safe Call)
-    let emailStatus = 'Not sent';
-    if (taskData.assignedTo) {
-      const assignedUser = users.find(u => u.id === taskData.assignedTo);
-      if (assignedUser) {
-        try {
-          const { error: funcError } = await supabase.functions.invoke('smooth-worker', {
-            body: { user: assignedUser, task: { title: taskData.title, dueDate: taskData.dueDate } }
-          });
-          if (funcError) throw funcError;
-          emailStatus = 'Sent successfully';
-        } catch (err: any) {
-          console.error('Notification failed:', err);
-          emailStatus = `Failed to send: ${err.message}`;
-        }
-      }
-    }
-
     await fetchData(); // Refresh list
-    return { success: true, emailStatus };
+    return { success: true };
   };
 
   const updateTask = async (id: string, updates: any) => {
