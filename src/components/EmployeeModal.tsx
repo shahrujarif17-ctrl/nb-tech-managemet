@@ -29,12 +29,12 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
     setError(null);
     
     try {
-      const success = await addEmployee(formData);
-      if (success) {
+      const result = await addEmployee(formData);
+      if (result.success) {
         onClose();
         setFormData({ name: '', email: '', role: 'employee', department: '', phone: '', avatar: '' });
       } else {
-        setError('Failed to register employee. Please check your database permissions.');
+        setError(result.error || 'Failed to register employee');
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred');

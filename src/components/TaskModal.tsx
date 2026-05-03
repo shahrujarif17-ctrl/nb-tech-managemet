@@ -41,24 +41,29 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, task }) =
   }, [task, isOpen]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
     try {
       if (task) {
-        await updateTask(task.id, formData);
+        const success = await updateTask(task.id, formData);
+        if (!success) throw new Error('Failed to update task');
       } else {
-        await addTask({
+        const result = await addTask({
           ...formData,
           startDate: new Date().toISOString(),
         } as any);
+        if (!result.success) throw new Error(result.error || 'Failed to create task');
       }
       onClose();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Submission failed:', err);
+      setError(err.message || 'An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
     }
@@ -80,6 +85,11 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, task }) =
         </div>
 
         <form onSubmit={handleSubmit} className="p-8">
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm font-bold text-center animate-in fade-in zoom-in-95">
+              {error}
+            </div>
+          )}
           <div className="space-y-6">
             <div>
               <label className="block text-[14px] font-heading font-bold text-[#CBD5E1] mb-2">Project Title</label>

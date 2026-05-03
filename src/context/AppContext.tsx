@@ -7,11 +7,11 @@ interface AppContextType {
   tasks: Task[];
   users: User[];
   loading: boolean;
-  addTask: (task: Omit<Task, 'id' | 'comments' | 'problemReports' | 'attachments'>) => Promise<boolean>;
+  addTask: (taskData: Partial<Task>) => Promise<{ success: boolean; error?: string }>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<boolean>;
   deleteTask: (id: string) => Promise<boolean>;
   updateUser: (id: string, updates: Partial<User>) => Promise<boolean>;
-  addEmployee: (employeeData: Partial<User>) => Promise<boolean>;
+  addEmployee: (employeeData: Partial<User>) => Promise<{ success: boolean; error?: string }>;
   isAuthenticated: boolean;
   currentUser: User | null;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
@@ -75,42 +75,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch Tasks
+      // 1. Fetch Tasks (Safely)
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
-        .select(`
-          *,
-          problem_reports (*)
-        `)
+        .select('*') // Fetch base tasks first to avoid relationship errors
         .order('created_at', { ascending: false });
 
-      if (tasksError) throw tasksError;
+      if (!tasksError && tasksData) {
+        const transformedTasks = tasksData.map((t: any) => ({
+          ...t,
+          assignedTo: t.assigned_to,
+          startDate: t.start_date,
+          dueDate: t.due_date,
+          completionPercentage: t.completion_percentage,
+          problemReports: [] // Initialize empty for now
+        }));
+        setTasks(transformedTasks);
+      } else if (tasksError) {
+        console.error('Task fetch error:', tasksError);
+      }
 
-      const transformedTasks = (tasksData || []).map((t: any) => ({
-        ...t,
-        assignedTo: t.assigned_to,
-        startDate: t.start_date,
-        dueDate: t.due_date,
-        completionPercentage: t.completion_percentage,
-        problemReports: (t.problem_reports || []).map((pr: any) => ({
-          ...pr,
-          taskId: pr.task_id,
-          userId: pr.user_id
-        }))
-      }));
-
-      setTasks(transformedTasks);
-
-      // Fetch Users/Profiles
+      // 2. Fetch Profiles (Independent of tasks)
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
 
-      if (profilesError) throw profilesError;
-      setUsers(profilesData || []);
+      if (!profilesError && profilesData) {
+        console.log(`[Data Fetch] Successfully found ${profilesData.length} profiles.`);
+        setUsers(profilesData);
+      } else if (profilesError) {
+        console.error('Profile fetch error:', profilesError);
+      }
 
     } catch (err) {
-      console.error('Error fetching live data:', err);
+      console.error('Critical fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -148,30 +146,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     
     if (error) {
       console.error('Error adding task:', error);
-      return false;
+      return { success: false, error: error.message };
     }
     
-    // Trigger Notifications
+    // Trigger Notifications (Safe Call)
     if (taskData.assignedTo) {
       const assignedUser = users.find(u => u.id === taskData.assignedTo);
       if (assignedUser) {
-        console.log(`[Notification] Calling Edge Function for ${assignedUser.email}`);
-        
-        // This calls the Supabase Edge Function we just set up
         supabase.functions.invoke('send-task-notification', {
-          body: { 
-            user: assignedUser, 
-            task: {
-              title: taskData.title,
-              dueDate: taskData.dueDate
-            } 
-          }
+          body: { user: assignedUser, task: { title: taskData.title, dueDate: taskData.dueDate } }
         }).catch(err => console.error('Notification failed:', err));
       }
     }
 
     await fetchData(); // Refresh list
-    return true;
+    return { success: true };
   };
 
   const updateTask = async (id: string, updates: any) => {
@@ -249,10 +238,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     if (error) {
       console.error('Error adding employee:', error);
-      return false;
+      return { success: false, error: error.message };
     }
     await fetchData();
-    return true;
+    return { success: true };
   };
 
   return (
