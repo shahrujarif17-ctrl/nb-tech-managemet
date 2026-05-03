@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-[#020617] text-[#CBD5E1] antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Manrope', sans-serif;
+    @apply text-[#F8FAFC];
+  }
+
+  /* Smooth scroll and transitions */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+}
+
+@theme {
+  --animate-fade-in-up: fade-in-up 0.5s ease-out;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+}
+
+/* Custom UI Utilities */
+.premium-card {
+  @apply bg-[#07111F] border border-[#1E2F46] rounded-[16px] shadow-sm hover:shadow-[0_12px_30px_rgba(37,99,235,0.12)] hover:border-[#2563EB] hover:-translate-y-0.5 transition-all duration-200;
+}
+
+.premium-input {
+  @apply bg-[#030B1A] border border-[#1E2F46] rounded-lg text-[#F8FAFC] placeholder-[#64748B] focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all duration-200;
+}
+
+.status-badge {
+  @apply px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider;
+}
