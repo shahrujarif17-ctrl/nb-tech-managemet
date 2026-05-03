@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar as CalendarIcon, User, Flag, CheckCircle, Loader2 } from 'lucide-react';
+import { X, Calendar as CalendarIcon, User, Flag, Loader2 } from 'lucide-react';
 import type { Task, TaskStatus, TaskPriority } from '../types';
 import { useAppContext } from '../context/AppContext';
 import { format, parseISO } from 'date-fns';
-import { clsx } from 'clsx';
 
 interface TaskModalProps {
   isOpen: boolean;

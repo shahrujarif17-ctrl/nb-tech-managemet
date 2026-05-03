@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { User, Bell, Lock, Globe, Monitor, Save, Check } from 'lucide-react';
 
 export const Settings: React.FC = () => {
-  const { users, updateUser, loading, currentUser } = useAppContext();
+  const { updateUser, loading, currentUser } = useAppContext();
   
   const [formData, setFormData] = useState({
     name: '',

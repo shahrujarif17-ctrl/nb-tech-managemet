@@ -11,6 +11,7 @@ interface AppContextType {
   updateTask: (id: string, updates: Partial<Task>) => Promise<boolean>;
   deleteTask: (id: string) => Promise<boolean>;
   updateUser: (id: string, updates: Partial<User>) => Promise<boolean>;
+  addEmployee: (employeeData: Partial<User>) => Promise<boolean>;
   isAuthenticated: boolean;
   currentUser: User | null;
   login: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
@@ -116,7 +117,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const login = async (email: string, pass: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password: pass,
     });

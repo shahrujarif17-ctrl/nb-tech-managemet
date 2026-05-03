@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Briefcase, Shield, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, User as UserIcon, Mail, Briefcase, Shield, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
+import type { Role } from '../types';
 
 interface EmployeeModalProps {
   isOpen: boolean;
@@ -13,7 +14,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'employee',
+    role: 'employee' as Role,
     department: '',
     avatar: ''
   });
@@ -50,7 +51,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
             <div className="space-y-2">
               <label className="block text-sm font-bold text-[#CBD5E1] ml-1">Full Name</label>
               <div className="relative group">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] group-focus-within:text-[#2563EB] transition-colors" />
+                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B] group-focus-within:text-[#2563EB] transition-colors" />
                 <input
                   required
                   type="text"
@@ -84,7 +85,7 @@ export const EmployeeModal: React.FC<EmployeeModalProps> = ({ isOpen, onClose })
                   <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
                   <select
                     value={formData.role}
-                    onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
                     className="w-full pl-12 pr-4 py-3 bg-[#030B1A] border border-[#1E2F46] rounded-xl text-[#F8FAFC] focus:outline-none focus:ring-1 focus:ring-[#2563EB] transition-all appearance-none"
                   >
                     <option value="employee">Employee</option>
